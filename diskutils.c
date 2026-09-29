@@ -351,7 +351,7 @@ int vd_mkdir(unsigned int cbn, const char *path)
 
     char *slash = strrchr(buf, '/');
     char parent_path[4096] = ".";
-    char new_name[24] = "";
+    char new_name[23] = "";
 
     if (slash)
     {
@@ -500,7 +500,7 @@ void vd_ls(unsigned int cbn, const char *path)
     }
 
     // Determine type
-    char leaf[24] = "";
+    char leaf[23] = "";
     unsigned int parent_bn;
     resolve_path(cbn, path, &target_bn, &parent_bn, leaf);
 
@@ -581,11 +581,11 @@ int vd_cp_hd_to_vd(unsigned int cbn, const char *hd_path, const char *vd_dest)
 
     unsigned int dest_bn = 0;
     unsigned int parent_bn;
-    char leaf[24];
+    char leaf[23];
 
     int resolved = resolve_path(cbn, vd_dest, &dest_bn, &parent_bn, leaf);
 
-    char final_name[24];
+    char final_name[23];
     unsigned int dir_bn;
 
     if (resolved && dest_bn != 0)
@@ -608,7 +608,7 @@ int vd_cp_hd_to_vd(unsigned int cbn, const char *hd_path, const char *vd_dest)
             else
             {
                 dir_bn = parent_bn;
-                snprintf(final_name, 24, "%s", leaf);
+                snprintf(final_name, sizeof(final_name), "%s", leaf);
 
                 free_chain(dm.firstblock);
 
@@ -631,7 +631,7 @@ int vd_cp_hd_to_vd(unsigned int cbn, const char *hd_path, const char *vd_dest)
     else
     {
         dir_bn = parent_bn;
-        snprintf(final_name, 24, "%s", leaf);
+        snprintf(final_name, sizeof(final_name), "%s", leaf);
     }
 
     int existing = dir_find(dir_bn, final_name);
@@ -669,7 +669,7 @@ int vd_cp_hd_to_vd(unsigned int cbn, const char *hd_path, const char *vd_dest)
     struct metadata nm;
     memset(&nm, 0, sizeof(nm));
     nm.type = 'f';
-    snprintf(nm.name, 24, "%s", final_name);
+    snprintf(nm.name, sizeof(nm.name), "%s", final_name);
     nm.size = (unsigned int)fsz;
     nm.firstblock = first_bn;
     dir_write_entry(dir_bn, dir_sz, &nm);
@@ -682,7 +682,7 @@ int vd_cp_hd_to_vd(unsigned int cbn, const char *hd_path, const char *vd_dest)
 int vd_cp_vd_to_hd(unsigned int cbn, const char *vd_src, const char *hd_dest)
 {
     unsigned int src_bn, parent_bn;
-    char leaf[24];
+    char leaf[23];
 
     if (!resolve_path(cbn, vd_src, &src_bn, &parent_bn, leaf))
     {
@@ -730,7 +730,7 @@ int vd_cp_vd_to_hd(unsigned int cbn, const char *vd_src, const char *hd_dest)
 int vd_cp_vd_to_vd(unsigned int cbn, const char *vd_src, const char *vd_dest)
 {
     unsigned int src_bn, src_parent;
-    char src_leaf[24];
+    char src_leaf[23];
 
     if (!resolve_path(cbn, vd_src, &src_bn, &src_parent, src_leaf))
     {
@@ -776,10 +776,10 @@ int vd_cp_vd_to_vd(unsigned int cbn, const char *vd_src, const char *vd_dest)
 
     //  Determine destination
     unsigned int dest_bn, dest_parent;
-    char dest_leaf[24];
+    char dest_leaf[23];
     int dest_exists = resolve_path(cbn, vd_dest, &dest_bn, &dest_parent, dest_leaf);
 
-    char final_name[24];
+    char final_name[23];
     unsigned int dir_bn;
 
     if (dest_exists && dest_bn != 0)
@@ -789,7 +789,7 @@ int vd_cp_vd_to_vd(unsigned int cbn, const char *vd_src, const char *vd_dest)
         {
             // root
             dir_bn = dest_bn;
-            snprintf(final_name, 24, "%s", sm.name);
+            snprintf(final_name, sizeof(final_name), "%s", sm.name);
         }
         else
         {
@@ -798,7 +798,7 @@ int vd_cp_vd_to_vd(unsigned int cbn, const char *vd_src, const char *vd_dest)
             if (dm.type == 'd')
             {
                 dir_bn = dm.firstblock;
-                snprintf(final_name, 24, "%s", sm.name);
+                snprintf(final_name, sizeof(final_name), "%s", sm.name);
             }
             else
             {
@@ -822,7 +822,7 @@ int vd_cp_vd_to_vd(unsigned int cbn, const char *vd_src, const char *vd_dest)
     else
     {
         dir_bn = dest_parent;
-        snprintf(final_name, 24, "%s", dest_leaf);
+        snprintf(final_name, sizeof(final_name), "%s", dest_leaf);
     }
 
     // Check existing
@@ -862,7 +862,7 @@ int vd_cp_vd_to_vd(unsigned int cbn, const char *vd_src, const char *vd_dest)
     struct metadata nm;
     memset(&nm, 0, sizeof(nm));
     nm.type = 'f';
-    snprintf(nm.name, 24, "%s", final_name);
+    snprintf(nm.name, sizeof(nm.name), "%s", final_name);
     nm.size = sm.size;
     nm.firstblock = first_bn;
     dir_write_entry(dir_bn, dir_sz, &nm);
@@ -877,7 +877,7 @@ int vd_cp_vd_to_vd(unsigned int cbn, const char *vd_src, const char *vd_dest)
 void vd_prn(unsigned int cbn, const char *path)
 {
     unsigned int src_bn, parent_bn;
-    char leaf[24];
+    char leaf[23];
 
     if (!resolve_path(cbn, path, &src_bn, &parent_bn, leaf))
     {
@@ -919,7 +919,7 @@ void vd_prn(unsigned int cbn, const char *path)
 unsigned int vd_resolve_dir(unsigned int cbn, const char *path)
 {
     unsigned int target_bn, parent_bn;
-    char leaf[24];
+    char leaf[23];
 
     if (!path || path[0] == '\0' || strcmp(path, "/") == 0)
     {
